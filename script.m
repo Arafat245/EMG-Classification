@@ -1,7 +1,7 @@
  
 parentDir = './';
 dataDir = 'EMGD1All';
-%helperCreateEMGDirectories(EMGData,parentDir,dataDir)
+helperCreateEMGDirectories(EMGData,parentDir,dataDir)
 
 %%
 helperPlotReps(EMGData)
