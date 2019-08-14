@@ -1,7 +1,7 @@
  
 parentDir = './';
-dataDir = 'data';
-helperCreateEMGDirectories(EMGData,parentDir,dataDir)
+dataDir = 'EMGD1All';
+%helperCreateEMGDirectories(EMGData,parentDir,dataDir)
 
 %%
 helperPlotReps(EMGData)
@@ -27,7 +27,7 @@ allImages = imageDatastore(fullfile(parentDir,dataDir),...
 
 %%
 rng default
-[imgsTrain,imgsValidation] = splitEachLabel(allImages,0.8,'randomized');
+[imgsTrain,imgsValidation] = splitEachLabel(allImages,0.7,'randomized');
 disp(['Number of training images: ',num2str(numel(imgsTrain.Files))]);
 disp(['Number of validation images: ',num2str(numel(imgsValidation.Files))]);
 
@@ -35,7 +35,7 @@ disp(['Number of validation images: ',num2str(numel(imgsValidation.Files))]);
 net = googlenet;
 
 %%
-lgraph = layerGraph(net);
+lgraph = layerGraph(googlenet);
 numberOfLayers = numel(lgraph.Layers);
 figure('Units','normalized','Position',[0.1 0.1 0.8 0.8]);
 plot(lgraph)
@@ -99,17 +99,35 @@ augimgsValidation = augmentedImageDatastore(inputSize(1:2),imgsValidation);
 
 %%
 rng default
-mbSize = 10;
-mxEpochs = 30;
-ilr = 1e-4;
+mbSize = 32;
+mxEpochs = 1;
+ilr = 1e-3;
 plt = 'training-progress';
 
 opts = trainingOptions('sgdm',...
     'InitialLearnRate',ilr, ...
+    'LearnRateSchedule','piecewise', ...
     'MaxEpochs',mxEpochs ,...
     'MiniBatchSize',mbSize, ...
     'ValidationData',augimgsValidation,...
-    'ExecutionEnvironment','cpu',...
+    'ValidationFrequency',16, ...
+     'ValidationPatience',5, ...
+    'ExecutionEnvironment','parallel',...
     'Plots',plt);
 
 trainedAN = trainNetwork(augimgsTrain,layers,opts);
+
+%% resnet50
+
+options = trainingOptions('sgdm', ...
+    'MiniBatchSize',10, ...
+    'MaxEpochs',2, ...
+    'InitialLearnRate',1e-3, ...
+    'Shuffle','every-epoch', ...
+    'ValidationData',imgsValidation, ...
+    'ValidationFrequency',6, ...
+    'Verbose',false, ...
+    'Plots','training-progress');
+
+net = trainNetwork(imgsTrain,r50,options);
+
