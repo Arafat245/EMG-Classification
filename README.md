@@ -17,7 +17,7 @@ EMGData = read(sub, Hd);
 Here sub = 1,2,3,..etc. the desired number of subjects you want to read.
 
 ### Step 4
-Now run the file `script' section by section using ![Image of Yaktocat](https://github.com/Arafat245/EMG-Classification/blob/master/Capture.JPG) in the following style -
+Now run the file `script' section by section using ![Image of run section](https://github.com/Arafat245/EMG-Classification/blob/master/Capture.JPG) in the following style -
 ```
 parentDir = './';
 dataDir = 'EMGD1All';
@@ -25,12 +25,10 @@ helperCreateEMGDirectories(EMGData,parentDir,dataDir)
 ```
 You can give your own name for dataDir. Plot the EMG data for first 1000 samples using the following section -
 ```
-%%
 helperPlotReps(EMGData)
 ```
 Create a scalogram for 1st 1000 samples and visualize it-
 ```
-%%
 Fs = 4000;
 fb = cwtfilterbank('SignalLength',1000,...
     'SamplingFrequency',Fs,...
@@ -43,21 +41,65 @@ title('Scalogram');xlabel('Time (s)');ylabel('Frequency (Hz)')
 ```
 Create RGB images for all EMG signals-
 ```
-%%
 helperCreateRGBfromTF(EMGData,parentDir,dataDir)
 ```
 This may take a while, be patient. Store all the images in allImages variable -
 ```
-%%
 allImages = imageDatastore(fullfile(parentDir,dataDir),...
     'IncludeSubfolders',true,...
     'LabelSource','foldernames');
 ```
 Split the images in training and validation sets (here ratio is 0.7) -
 ```
-%%
 rng default
 [imgsTrain,imgsValidation] = splitEachLabel(allImages,0.7,'randomized');
 disp(['Number of training images: ',num2str(numel(imgsTrain.Files))]);
 disp(['Number of validation images: ',num2str(numel(imgsValidation.Files))]);
 ```
+Now you can run the deep neural netwoek google net-
+```
+net = googlenet;
+```
+Visualize the layers
+```
+lgraph = layerGraph(googlenet);
+numberOfLayers = numel(lgraph.Layers);
+figure('Units','normalized','Position',[0.1 0.1 0.8 0.8]);
+plot(lgraph)
+title(['GoogLeNet Layer Graph: ',num2str(numberOfLayers),' Layers']);
+
+net.Layers(1)
+```
+Remove the last 4 layers and add 3 new layers -
+```
+lgraph = removeLayers(lgraph,{'pool5-drop_7x7_s1','loss3-classifier','prob','output'});
+
+numClasses = numel(categories(imgsTrain.Labels));
+newLayers = [
+    dropoutLayer(0.6,'Name','newDropout')
+    fullyConnectedLayer(numClasses,'Name','fc','WeightLearnRateFactor',5,'BiasLearnRateFactor',5)
+    softmaxLayer('Name','softmax')
+    classificationLayer('Name','classoutput')];
+lgraph = addLayers(lgraph,newLayers);
+
+lgraph = connectLayers(lgraph,'pool5-7x7_s1','newDropout');
+inputSize = net.Layers(1).InputSize;
+```
+Specify training options-
+```
+options = trainingOptions('sgdm',...
+    'MiniBatchSize',15,...
+    'MaxEpochs',20,...
+    'InitialLearnRate',1e-4,...
+    'ValidationData',imgsValidation,...
+    'ValidationFrequency',10,...
+    'Verbose',1,...
+    'ExecutionEnvironment','cpu',...
+    'Plots','training-progress');
+```
+Now you can train-
+```
+rng default
+trainedGN = trainNetwork(imgsTrain,lgraph,options);
+```
+Follow almost same procedure for alexnet and other networks in the subsequent sections.
