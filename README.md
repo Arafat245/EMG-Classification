@@ -56,7 +56,7 @@ rng default
 disp(['Number of training images: ',num2str(numel(imgsTrain.Files))]);
 disp(['Number of validation images: ',num2str(numel(imgsValidation.Files))]);
 ```
-Now you can run the deep neural netwoek google net-
+Now you can run the deep neural network `googlenet`-
 ```
 net = googlenet;
 ```
@@ -102,7 +102,7 @@ Now you can train-
 rng default
 trainedGN = trainNetwork(imgsTrain,lgraph,options);
 ```
-Follow almost same procedure for alexnet and other networks in the subsequent sections.
+Follow almost same procedure for `alexnet` and other networks in the subsequent sections.
 
 ## References
 [1] R. N. Khushaba, M. Takruri, S. Kodagoda, and G. Dissanayake, "Toward Improved Control of Prosthetic Fingers Using Surface Electromyogram (EMG) Signals," Expert Systems with Applications, vol 39, no. 12, pp. 10731–10738, 2012.
