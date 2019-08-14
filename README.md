@@ -70,7 +70,7 @@ title(['GoogLeNet Layer Graph: ',num2str(numberOfLayers),' Layers']);
 
 net.Layers(1)
 ```
-Remove the last 4 layers and add 3 new layers -
+Remove the last 4 layers and add 4 new layers -
 ```
 lgraph = removeLayers(lgraph,{'pool5-drop_7x7_s1','loss3-classifier','prob','output'});
 
