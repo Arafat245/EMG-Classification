@@ -17,7 +17,7 @@ EMGData = read(sub, Hd);
 Here sub = 1,2,3,..etc. the desired number of subjects you want to read.
 
 ### Step 4
-Now run the file `script' section by section using ![Image of run section](https://github.com/Arafat245/EMG-Classification/blob/master/Capture.JPG) in the following style -
+Now run the file `script` section by section using ![Image of run section](https://github.com/Arafat245/EMG-Classification/blob/master/Capture.JPG) in the following style -
 ```
 parentDir = './';
 dataDir = 'EMGD1All';
