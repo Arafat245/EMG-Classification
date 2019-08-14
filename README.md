@@ -23,3 +23,41 @@ parentDir = './';
 dataDir = 'EMGD1All';
 helperCreateEMGDirectories(EMGData,parentDir,dataDir)
 ```
+You can give your own name for dataDir. Plot the EMG data for first 1000 samples using the following section -
+```
+%%
+helperPlotReps(EMGData)
+```
+Create a scalogram for 1st 1000 samples and visualize it-
+```
+%%
+Fs = 4000;
+fb = cwtfilterbank('SignalLength',1000,...
+    'SamplingFrequency',Fs,...
+    'VoicesPerOctave',12);
+sig = EMGData.Data(1,1:1000);
+[cfs,frq] = wt(fb,sig);
+t = (0:999)/Fs;figure;pcolor(t,frq,abs(cfs))
+set(gca,'yscale','log');shading interp;axis tight;
+title('Scalogram');xlabel('Time (s)');ylabel('Frequency (Hz)')
+```
+Create RGB images for all EMG signals-
+```
+%%
+helperCreateRGBfromTF(EMGData,parentDir,dataDir)
+```
+This may take a while, be patient. Store all the images in allImages variable -
+```
+%%
+allImages = imageDatastore(fullfile(parentDir,dataDir),...
+    'IncludeSubfolders',true,...
+    'LabelSource','foldernames');
+```
+Split the images in training and validation sets (here ratio is 0.7) -
+```
+%%
+rng default
+[imgsTrain,imgsValidation] = splitEachLabel(allImages,0.7,'randomized');
+disp(['Number of training images: ',num2str(numel(imgsTrain.Files))]);
+disp(['Number of validation images: ',num2str(numel(imgsValidation.Files))]);
+```
