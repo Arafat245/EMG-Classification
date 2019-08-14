@@ -60,7 +60,7 @@ Now you can run the deep neural network `googlenet`-
 ```
 net = googlenet;
 ```
-Visualize the layers
+Visualize the layers -
 ```
 lgraph = layerGraph(googlenet);
 numberOfLayers = numel(lgraph.Layers);
