@@ -43,7 +43,7 @@ Create RGB images for all EMG signals-
 ```
 helperCreateRGBfromTF(EMGData,parentDir,dataDir)
 ```
-This may take a while, be patient. Store all the images in allImages variable -
+This may take a while, be patient. Store all the images in `allImages` variable -
 ```
 allImages = imageDatastore(fullfile(parentDir,dataDir),...
     'IncludeSubfolders',true,...
