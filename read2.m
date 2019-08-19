@@ -1,15 +1,13 @@
-function [EMGData] = read2(sub)
+function [EMGData] = read2(sub,f)
 if nargin<1
     sub = 1;
 end
 
-data = zeros(1,20000);
+Labels = cell(12,1);
+lvalue = {'HC';'T-T';'I-I';'M-M';'T-I';'R-R';'T-M';'T-R'};
+data = zeros(3,20000);
 
-% win_size = 256;
-% win_inc = 128;
-% ar_order = 4;
-
-class = 5;
+class = 8;
 index = 3;
 for j=1:class
     for k=1:index
@@ -37,46 +35,50 @@ for j=1:class
             case 8 
                 filename = sprintf('./S%d-Delsys-15Class/T_R%d.csv',sub,k);
                 %filename = sprintf('./S%d-Delsys-15Class/MRL%d.csv',sub,k);
-            case 9 
-               filename = sprintf('./S%d-Delsys-15Class/R_L%d.csv',sub,k);
-            case 10 
-                filename = sprintf('./S%d-Delsys-15Class/R_R%d.csv',sub,k);
-            case 11 
-                filename = sprintf('./S%d-Delsys-15Class/T_I%d.csv',sub,k);
-            case 12 
-                filename = sprintf('./S%d-Delsys-15Class/T_L%d.csv',sub,k);
-            case 13 
-                filename = sprintf('./S%d-Delsys-15Class/T_M%d.csv',sub,k);
-            case 14 
-                filename = sprintf('./S%d-Delsys-15Class/T_R%d.csv',sub,k);
-            case 15 
-                filename = sprintf('./S%d-Delsys-15Class/T_T%d.csv',sub,k);
+%             case 9 
+%                filename = sprintf('./S%d-Delsys-15Class/R_L%d.csv',sub,k);
+%             case 10 
+%                 filename = sprintf('./S%d-Delsys-15Class/R_R%d.csv',sub,k);
+%             case 11 
+%                 filename = sprintf('./S%d-Delsys-15Class/T_I%d.csv',sub,k);
+%             case 12 
+%                 filename = sprintf('./S%d-Delsys-15Class/T_L%d.csv',sub,k);
+%             case 13 
+%                 filename = sprintf('./S%d-Delsys-15Class/T_M%d.csv',sub,k);
+%             case 14 
+%                 filename = sprintf('./S%d-Delsys-15Class/T_R%d.csv',sub,k);
+%             case 15 
+%                 filename = sprintf('./S%d-Delsys-15Class/T_T%d.csv',sub,k);
         end
-        %data = csvread(filename);
+      
         temp_data = csvread(filename);
-        %t1 =((temp_data(:,1)+temp_data(:,2)+temp_data(:,3)+temp_data(:,4)+temp_data(:,5)+temp_data(:,6)+temp_data(:,7)+temp_data(:,8))/8);
-        %d = horzcat(temp_data,t1);
-        t2 = transpose(temp_data);
+    
+        t2 = temp_data;
+        t = zeros(3,1000);
+        
+        for m=1:1000:size(t2,1)     
+            n = m+999;
+            win = t2(m:n,:);
+            if t == 0
+               t = transpose(win);
+            else
+               t = [t;transpose(win)];
+            end
+        end
+        
+        ft = filter(f,t);
+        
+        l(1:size(ft,1),1) = lvalue(j);
         
         if data == 0 
-          data = t2;
-          
+           data = ft;
+           Labels = l;
         else
-            data = [data;t2];
-        end
-            
-%         ch1 = temp_data(:,1);
-%         ch2 = temp_data(:,2);
-%         filtered_1 = filter(Hd, ch1);
-%         filtered_2 =  filter(Hd, ch2);
-        %t1 =((temp_data(:,1)+temp_data(:,2))/20000);
-        %t1 =((filtered_1+filtered_2)/20000);
-        
-        %data = horzcat(temp_data,t1);
-        %data = normc(data); %normalization of raw data, might not be necessary                
+           data = [data;ft];
+           Labels = [Labels;l];
+        end              
     end
 end
-Labels = labelcreator2();
 EMGData.Data = data;
 EMGData.Labels = Labels;
 end
