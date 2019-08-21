@@ -1,6 +1,6 @@
  
 parentDir = './';
-dataDir = 'S1EMG';
+dataDir = 'eg';
 helperCreateEMGDirectories(EMGData,parentDir,dataDir)
 
 %%
@@ -27,7 +27,7 @@ allImages = imageDatastore(fullfile(parentDir,dataDir),...
 
 %%
 rng default
-[imgsTrain,imgsValidation] = splitEachLabel(allImages,0.95,'randomized');
+[imgsTrain,imgsValidation] = splitEachLabel(allImages,0.75,'randomized');
 disp(['Number of training images: ',num2str(numel(imgsTrain.Files))]);
 disp(['Number of validation images: ',num2str(numel(imgsValidation.Files))]);
 
